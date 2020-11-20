@@ -9,6 +9,7 @@ To have a full overview of the problem and data, please visit the competition we
 ## REPOSITORY FILES DESCRIPTION
  * data_analysis.ipynb : details on some analysis and vizualisation I did on the data.
  * data_processing.ipynb : details on how data have been processed (imputation, scaling and encoding)
+ * classification.ipynb: details on how I trained my classifier.
 
 ## Data Analysis (data_analysis.ipynb)
 First of all, we started by looking at the provided data to get a better understanding and extract some insights on how features are linked to target (lithofacies labels). All detailed steps are available inside "data_analysis.ipynb" notebook.
@@ -36,3 +37,39 @@ Many processing steps have been applied to our data
 * **Processing pipeline**: This pipeline involves data imputation, numeric features scaling and categorical features encoding.  To impute numeric features, we used an iterative imputer (from sklearn) which iteratively predict features null values using others features. This is done with a Bayesian approach. For more information on this method, please visit : https://scikit-learn.org/stable/modules/generated/sklearn.impute.IterativeImputer.html.
 Finally , to impute GROUP and FORMATION, we trained 2 classifiers using numeric features as input. We think this method yields a better result than just filling those features with the mode. All this processing has been trained on our train set only. We only applied it on val/test sets to make sure we are not leaking information before the training phase.
 * We saved the processed data and the processing pipeline for the next step. More details on this processing step are available in data_processing.ipynb 
+
+## Modelisation (classification.ipynb)
+After cleaning the data, we tried many type of classification models:
+- XGBOOST classifier: Very efficient Gradient Boosting Model. 
+- Catboost : Also a GBM. One of the main difference with XGboost is that it handles categorical features and is easy to train on GPU
+- Deep Learning Sequence to sequence model using LSTM. Since we know that there is a structure in  Lithofacies alignment, We think that Sequential models like LSTM will be able to capture that structure and yield better results than classifier applied independently to each sample point.
+
+For this competition, we only had time to push results yielded by Catboost as we arrived when the competition was about to close. Therefore we did a simle grid search to find a classifier with acceptable results.
+
+- First we trained a baseline model. It gives us 
+![alt text](images/baseline_metrics.png)
+Above plots show the model is overfitting since it works well on train/val but not on test set.
+
+- Thus we tried a grid search on some hyperparameters to find a better model. 
+![alt text](images/gs_metrics.png)
+Above plots show that our classifier is generalizing more (better test scores). This is done after some grid search iterations. Better models can be found after longer hyperparameters tuning using fancier methods like Bayesian search.
+
+- Features importance
+![alt text](images/features_importance.png)
+Our current best model features importance show that GR, GROUP and FORMATION are the most used features for trees construction. Therefore it was a good idea to fill GROUP and FEATURE with classifiers since there are very important for this task.
+
+- Confusion matrix
+![alt text](images/confusion_matrix.png)
+Our current model is not doing very well in terms of Recall and precision. Many lithofacies are predicted as 65000(most frequent class in our dataset) This is due to the fact that we have a highly unbalanced classes. There are many ways we can try to solve this issue.
+
+
+## HOW CAN WE IMPROVE THOSE RESULTS?
+- Firstly we should deal with unbalanced classes problem. This can be done by weighting samples according to classes frequency. If we give higher weights to rare classes, maybe the model will be able to classifier them better. Also we can try upsampling/downsampling method to train our model on a more balanced dataset.
+- Then we should improve hyperparameters tuning. This can be done by running more iterations on our current grid search or by using bayesian search which usually gives better results.
+- Also, to improve our results, we can try other type of models. For example we can use LSTM architecture to classify all samples of the same well at the same time. This way our model will use information of surroundings to classify a sample. Also this type of model could be able to capture lithofacies structure underground. This is thus a promising way to go.
+
+## COMPETITION RESULTS
+- With my first approach (data filling with iterative imputer and Catboost)I was ranked  55/329 on the public leaderboard. 
+- The winner on the private (final) leaderboard was 24/329 on the public leaderboard. It means that top scorers on the public leaderboard were overfitting a lot on data used for the public leaderboard.
+- I didn't get a chance to run my model on the private leaderboard dataset. So we will never know what my final ranking would have been ;). 
+- Even with a simple modelisation (Catboost + quick grid search) and most of my time working on data vizualisation/analysis/processing, I managed to get a good ranking and I had a lot of fun working on this competition.

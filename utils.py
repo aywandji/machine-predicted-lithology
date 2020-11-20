@@ -71,14 +71,14 @@ def reduce_mem_usage(props):
     return props, NAlist
 
 
-def penalty_score(y_true, y_pred):
+def penalty_score(y_true, y_pred,penalty_matrix=None):
     S = 0.0
     lithology_cat_to_position = {30000: 0, 65030: 1, 65000: 2, 80000: 3, 74000: 4, 70000: 5,
                                  70032: 6, 88000: 7, 86000: 8, 99000: 9, 90000: 10, 93000: 11}
     for i in range(y_true.shape[0]):
         r = lithology_cat_to_position[y_true[i]]
         c = lithology_cat_to_position[y_pred[i]]
-        S -= penalty[r, c]
+        S -= penalty_matrix[r, c]
     return S / y_true.shape[0]
 
 
@@ -179,7 +179,7 @@ class WellLogsProcessing():
         self.iterative_imputer = None
         self.data_scaler = None
 
-        self.cat_transform_method = None
+        self.cat_transform_method = "ordinal_encoding"
         self.ordinal_encoder = None
         self.onehot_encoder = None
 
@@ -233,7 +233,6 @@ class WellLogsProcessing():
 
         # if self.onehot_encoder is None:
         if self.cat_transform_method == "ordinal_encoder":
-            # dump(self.ordinal_encoder,cat_encoder_path )
             encoder_dict = {}
             encoder_dict["FORMATION"] = self.all_formations
             encoder_dict["GROUP"] = self.all_groups
