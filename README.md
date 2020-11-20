@@ -70,6 +70,8 @@ Our current model is not doing very well in terms of Recall and precision. Many 
 
 ## COMPETITION RESULTS
 - With my first approach (data filling with iterative imputer and Catboost)I was ranked  55/329 on the public leaderboard. 
+https://xeek.ai/challenges/force-well-logs/leaderboard
+![alt text](images/rank.PNG)
 - The winner on the private (final) leaderboard was 24/329 on the public leaderboard. It means that top scorers on the public leaderboard were overfitting a lot on data used for the public leaderboard.
 - I didn't get a chance to run my model on the private leaderboard dataset. So we will never know what my final ranking would have been ;). 
 - Even with a simple modelisation (Catboost + quick grid search) and most of my time working on data vizualisation/analysis/processing, I managed to get a good ranking and I had a lot of fun working on this competition.
